@@ -1,4 +1,4 @@
-[# MemoAI — Memory-Powered Local AI Agent
+# MemoAI — Memory-Powered Local AI Agent
 
 > **Speak a command → AI understands your intent → Files get created, code gets written, text gets summarized. Entirely on your machine.**
 
@@ -6,12 +6,12 @@ MemoAI is a fully local-first, voice-controlled AI agent built for the GenoTek V
 
 ---
 
-## 📹 Links
+## Links
 
 | Resource | Link |
 |----------|------|
-| 🎬 Video Demo | [YouTube Unlisted](YOUR_YOUTUBE_LINK) |
-| 📰 Technical Article | [Medium / Dev.to](YOUR_ARTICLE_LINK) |
+| 🎬 Video Demo | [YouTube Unlisted](https://youtu.be/xt7Ha3HTBlM) |
+| 📰 Technical Article | [Medium / Dev.to](https://medium.com/@sudharsan97511/building-memoai-a-memory-powered-local-ai-agent-that-listens-thinks-and-acts-c8ac59c360c2) |
 | 💻 GitHub Repository | [github.com/Sudharsanselvaraj/MemoAI](YOUR_GITHUB_LINK) |
 
 ---
@@ -484,4 +484,3 @@ MIT License — see `LICENSE` for details.
 Pre-final year BTech CSE @ SRMIST Trichy  
 ML Engineer Intern @ ALKF  
 [LinkedIn](https://linkedin.com/in/sudharsan-s-528a8a2a0) · [GitHub](https://github.com/Sudharsanselvaraj)
-](https://youtu.be/xt7Ha3HTBlM)
