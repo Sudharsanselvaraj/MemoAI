@@ -17,17 +17,37 @@ load_dotenv()
 
 from stt import transcribe_audio
 from agent import run_agent
+from metrics_store import metrics
+import requests
 
 app = FastAPI(title="Voice AI Agent API")
 
 # Allow CORS for React frontend (default Vite port is 5173)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=["*"], # More permissive for debugging the "closing" issue
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/metrics")
+def get_metrics():
+    # Update system status briefly before returning
+    try:
+        resp = requests.get("http://localhost:11434/api/tags", timeout=1)
+        metrics["system"]["ollama"] = "running" if resp.status_code == 200 else "error"
+        metrics["system"]["api"] = "healthy"
+        metrics["system"]["model"] = "loaded"
+        metrics["system"]["memory"] = "connected"
+    except:
+        metrics["system"]["ollama"] = "error"
+        metrics["system"]["api"] = "healthy"
+        metrics["system"]["model"] = "unknown"
+        metrics["system"]["memory"] = "unknown"
+    
+    metrics["last_updated"] = datetime.now().strftime("%H:%M:%S")
+    return metrics
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -181,3 +201,7 @@ async def approve_action(request: ApprovalRequest):
 @app.get("/api/history")
 def get_history(session_id: str = "default"):
     return {"history": _sessions.get(session_id, [])}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

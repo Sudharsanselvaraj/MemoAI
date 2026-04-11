@@ -8,6 +8,8 @@ import re
 from datetime import datetime
 from typing import Optional
 import requests
+import time
+from metrics_store import metrics, update_history
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "output")
@@ -42,8 +44,8 @@ Be concise and effective. For code generation, write clean, working code with co
 For summaries, be thorough but concise. For chat, be helpful and friendly."""
 
 
-def call_ollama(prompt: str, system: str = "", model: str = "llama3") -> str:
-    """Call local Ollama instance."""
+def call_ollama(prompt: str, system: str = "", model: str = "llama3") -> tuple[str, dict]:
+    """Call local Ollama instance and return (response, usage)."""
     payload = {
         "model": model,
         "prompt": prompt,
@@ -54,7 +56,15 @@ def call_ollama(prompt: str, system: str = "", model: str = "llama3") -> str:
     try:
         resp = requests.post(OLLAMA_URL, json=payload, timeout=60)
         resp.raise_for_status()
-        return resp.json().get("response", "").strip()
+        data = resp.json()
+        
+        usage = {
+            "prompt": data.get("prompt_eval_count", 0),
+            "completion": data.get("eval_count", 0),
+            "total": data.get("prompt_eval_count", 0) + data.get("eval_count", 0)
+        }
+        
+        return data.get("response", "").strip(), usage
     except requests.exceptions.ConnectionError:
         raise RuntimeError("Ollama is not running. Start it with: ollama serve")
     except Exception as e:
@@ -160,7 +170,8 @@ def execute_write_code(entities: dict, original_text: str) -> dict:
     if not filename:
         # Generate a meaningful filename from description
         fname_prompt = f"Generate a short snake_case filename (no extension) for: {description}. Return ONLY the filename."
-        filename = call_ollama(fname_prompt).strip().split()[0] + ext
+        res, _ = call_ollama(fname_prompt)
+        filename = res.strip().split()[0] + ext
     
     filepath = safe_filename(filename, ext)
     
@@ -173,7 +184,9 @@ Requirements:
 - Add a brief docstring/comment at the top
 - Make it complete and runnable
 """
-    code = call_ollama(code_prompt, system=TOOL_SYSTEM_PROMPT)
+    code, usage = call_ollama(code_prompt, system=TOOL_SYSTEM_PROMPT)
+    # Store usage in a way we can retrieve it
+    setattr(execute_write_code, "last_usage", usage)
     
     # Strip markdown code fences if present
     code = re.sub(r'^```\w*\n?', '', code.strip(), flags=re.MULTILINE)
@@ -184,9 +197,9 @@ Requirements:
     
     return {
         "action": "write_code",
-        "filepath": filepath,
-        "message": f"✅ Code written to: {os.path.basename(filepath)}",
-        "output": code.strip()
+        "message": code,
+        "output": code,
+        "filepath": filepath
     }
 
 
@@ -204,11 +217,12 @@ Provide:
 2. Key points (bullet list)
 3. Main takeaway
 """
-    summary = call_ollama(summary_prompt, system=TOOL_SYSTEM_PROMPT)
+    summary, usage = call_ollama(summary_prompt, system=TOOL_SYSTEM_PROMPT)
+    setattr(execute_summarize, "last_usage", usage)
     
     result = {
         "action": "summarize",
-        "message": "✅ Summary generated",
+        "message": summary,
         "output": summary
     }
     
@@ -227,14 +241,15 @@ def execute_general_chat(original_text: str, session_context: str = "") -> dict:
     """Handle general conversation."""
     context_str = f"\nConversation history:\n{session_context}\n" if session_context else ""
     
-    response = call_ollama(
+    response, usage = call_ollama(
         prompt=f"{context_str}User: {original_text}",
         system=TOOL_SYSTEM_PROMPT
     )
+    setattr(execute_general_chat, "last_usage", usage)
     
     return {
         "action": "general_chat",
-        "message": "✅ Response generated",
+        "message": response,
         "output": response
     }
 
@@ -256,8 +271,12 @@ def run_agent(transcription: str, session_history: list = None, pending_approval
     
     # Step 1: Classify intent
     try:
+        metrics["pipeline"]["intent"] = "running"
         intent_data = classify_intent(transcription)
+        metrics["pipeline"]["intent"] = "completed"
+        metrics["intent"] = intent_data.get("intents", ["unknown"])[0]
     except Exception as e:
+        metrics["pipeline"]["intent"] = "error"
         return {"error": f"Intent classification failed: {e}"}
     
     intents = intent_data.get("intents", ["general_chat"])
@@ -282,27 +301,60 @@ def run_agent(transcription: str, session_history: list = None, pending_approval
     
     # Step 3: Execute tools for each intent
     results = []
+    total_usage = {"prompt": 0, "completion": 0, "total": 0}
+    start_time = time.time()
+    
+    metrics["pipeline"]["tool"] = "running"
     for intent in intents:
         try:
             if intent == "create_file":
                 r = execute_create_file(entities)
+                u = getattr(execute_create_file, "last_usage", {"prompt": 0, "completion": 0, "total": 0})
             elif intent == "write_code":
                 r = execute_write_code(entities, transcription)
+                u = getattr(execute_write_code, "last_usage", {"prompt": 0, "completion": 0, "total": 0})
             elif intent == "summarize":
                 r = execute_summarize(entities, transcription, session_context)
+                u = getattr(execute_summarize, "last_usage", {"prompt": 0, "completion": 0, "total": 0})
             elif intent == "general_chat":
                 r = execute_general_chat(transcription, session_context)
+                u = getattr(execute_general_chat, "last_usage", {"prompt": 0, "completion": 0, "total": 0})
             else:
                 r = execute_general_chat(transcription, session_context)
+                u = getattr(execute_general_chat, "last_usage", {"prompt": 0, "completion": 0, "total": 0})
+            
+            for k in total_usage:
+                total_usage[k] += u.get(k, 0)
             results.append(r)
         except Exception as e:
             results.append({"action": intent, "error": str(e), "message": f"❌ Failed: {e}"})
     
+    metrics["pipeline"]["tool"] = "completed"
+    metrics["pipeline"]["response"] = "completed"
+    
+    latency = time.time() - start_time
+    
+    # Report final metrics
+    metrics["action"] = results[0].get("action", "unknown") if results else "unknown"
+    metrics["result"] = results[0].get("output") or results[0].get("message") or "No result"
+    metrics["tokens"] = total_usage
+    metrics["latency"] = round(latency, 2)
+    
+    # Memoary Metrics
+    metrics["memory"]["count"] = len(session_history) if session_history else 0
+    metrics["memory"]["hits"] = len([h for h in session_history if h['role'] == 'assistant']) if session_history else 0
+    metrics["memory"]["misses"] = 1
+    
+    # History
+    update_history(transcription, "success")
+
     return {
         "transcription": transcription,
         "intents": intents,
         "entities": entities,
         "confidence": confidence,
         "results": results,
-        "needs_approval": False
+        "needs_approval": False,
+        "usage": total_usage,
+        "latency": latency
     }

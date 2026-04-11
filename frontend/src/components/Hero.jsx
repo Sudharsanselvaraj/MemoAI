@@ -1,154 +1,50 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import DashboardPreview from "./DashboardPreview";
 
 export default function Hero() {
   return (
-    <section
-      className="
-        relative
-        min-h-screen
-        flex
-        items-center
-        justify-center
-        bg-gradient-to-b
-        from-sky-300
-        to-slate-100
-        overflow-hidden
-      "
-    >
-      {/* LEFT CLOUD */}
-      <motion.img
-        src="/cloud-left.svg"
-        alt="cloud"
-        className="
-          absolute
-          top-24
-          left-0
-          w-72
-          opacity-60
-          pointer-events-none
-        "
-        animate={{ x: [-20, 20, -20] }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-
-      {/* RIGHT CLOUD */}
-      <motion.img
-        src="/cloud-right.svg"
-        alt="cloud"
-        className="
-          absolute
-          top-24
-          right-0
-          w-72
-          opacity-60
-          pointer-events-none
-        "
-        animate={{ x: [20, -20, 20] }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-
+    <section className="relative pt-44 pb-32 overflow-hidden bg-transparent">
       {/* CONTENT */}
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="
-          flex
-          flex-col
-          items-center
-          gap-8
-          text-center
-          px-6
-        "
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-[1440px] mx-auto flex flex-col items-center gap-10 text-center relative z-10"
       >
-        {/* Badge */}
-        <div
-          className="
-            px-4
-            py-2
-            bg-white/80
-            rounded-full
-            shadow
-            text-sm
-          "
-        >
-          ✨ Voice AI Agent
-        </div>
-
         {/* Title */}
-        <h1
-          className="
-            text-6xl
-            md:text-7xl
-            font-bold
-            tracking-tight
-            leading-tight
-          "
-        >
-          Run your freelance
-          <br />
-          <span
-            className="
-              bg-gradient-to-r
-              from-indigo-500
-              to-purple-500
-              text-transparent
-              bg-clip-text
-            "
-          >
-            business like a pro
-          </span>
+        <h1 className="relative z-10 text-6xl md:text-[88px] font-black tracking-[-0.03em] leading-[1.05] text-slate-900 max-w-4xl mx-auto px-6">
+          Memory-Powered Local AI Agent
         </h1>
 
-        {/* Subtitle */}
-        <p
-          className="
-            text-lg
-            text-gray-600
-            max-w-xl
-          "
-        >
-          All-in-one platform for managing clients, projects,
-          and payments.
-        </p>
+        {/* Tagline & Subtitle */}
+        <div className="flex flex-col items-center gap-6 max-w-3xl px-6">
+          <p className="text-xl md:text-2xl font-bold text-slate-700 tracking-tight">
+            Remember. Understand. Execute.
+          </p>
+          <p className="text-[17px] text-slate-500 max-w-2xl leading-relaxed font-medium">
+            A local-first AI system that remembers context, understands intent, and executes actions intelligently.
+          </p>
+        </div>
 
         {/* Buttons */}
-        <div className="flex gap-4 mt-4">
-          <button
-            className="
-              bg-black
-              text-white
-              px-7
-              py-3
-              rounded-full
-              hover:scale-105
-              transition
-            "
+        <div className="flex items-center gap-8 mt-2 mb-12">
+          <Link
+            to="/agent"
+            className="bg-[#1a1a1a] text-white px-10 py-4 rounded-full text-[15px] font-black hover:shadow-2xl hover:shadow-black/20 hover:-translate-y-1 transition-all"
           >
-            Try Free →
-          </button>
-
-          <button
-            className="
-              bg-gray-100
-              px-7
-              py-3
-              rounded-full
-              hover:bg-gray-200
-              transition
-            "
+            Try MemoAI free
+          </Link>
+          <Link
+            to="/architecture"
+            className="text-slate-500 hover:text-slate-900 text-[15px] font-bold transition-colors"
           >
-            See features
-          </button>
+            View Architecture
+          </Link>
         </div>
+
+        {/* Console Preview */}
+        <DashboardPreview />
       </motion.div>
     </section>
   );

@@ -1,55 +1,33 @@
-import { useState, useRef, useEffect } from 'react'
-import { motion, useInView } from 'framer-motion'
-
-function AnimatedNumber({ value, suffix = '' }) {
-  const [display, setDisplay] = useState(0)
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true })
-  useEffect(() => {
-    if (!inView) return
-    let start = 0
-    const step = value / 60
-    const timer = setInterval(() => {
-      start += step
-      if (start >= value) { setDisplay(value); clearInterval(timer) }
-      else setDisplay(Math.floor(start))
-    }, 16)
-    return () => clearInterval(timer)
-  }, [inView, value])
-  return <span ref={ref}>{display}{suffix}</span>
-}
+import { motion } from 'framer-motion'
 
 export default function StatsStrip() {
-  const stats = [
-    { value: 4, suffix: '+', label: 'Intent Types' },
-    { value: 100, suffix: '%', label: 'Local & Private' },
-    { value: 3, suffix: 's', label: 'Avg Response' },
-    { value: 2, suffix: '', label: 'Input Methods' },
+  const techs = [
+    "Whisper", "Mem0", "FastAPI", "React", "Docker", 
+    "Python", "LangChain", "Groq", "SQLite"
   ]
+  
   return (
-    <motion.div
-      className="py-28 px-6"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6 }}
-    >
-      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 text-center mt-16">
-        {stats.map((s, i) => (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1, duration: 0.5 }}
-          >
-            <div className="text-4xl font-bold text-indigo-600 mb-1">
-              <AnimatedNumber value={s.value} suffix={s.suffix} />
-            </div>
-            <div className="text-gray-500 font-medium">{s.label}</div>
-          </motion.div>
-        ))}
+    <section className="py-20 bg-white overflow-hidden border-y border-gray-50">
+      <div className="max-w-7xl mx-auto px-6">
+        <p className="text-center text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-12">
+          BUILT WITH PROFESSIONAL-GRADE AI INFRASTRUCTURE
+        </p>
+        
+        <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 opacity-40 grayscale transition-all hover:grayscale-0 hover:opacity-100">
+          {techs.map((tech, i) => (
+            <motion.div
+              key={tech}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.05 }}
+              className="text-2xl md:text-3xl font-bold tracking-tighter text-gray-600"
+            >
+              {tech}
+            </motion.div>
+          ))}
+        </div>
       </div>
-    </motion.div>
+    </section>
   )
 }

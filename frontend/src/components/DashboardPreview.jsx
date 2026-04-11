@@ -1,261 +1,149 @@
-import { useState, useRef, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Mic, MicOff, Upload, Send, Loader2, FileAudio, Zap } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Home, Users, Briefcase, Clock, Settings, Search, Play, Plus, Zap, Brain, Sparkles } from 'lucide-react'
 
-function Waveform({ active }) {
-  return (
-    <div className="flex items-center justify-center gap-1 h-12">
-      {Array.from({ length: 20 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="w-1 rounded-full"
-          style={{ background: active ? '#4f46e5' : '#d1d5db' }}
-          animate={active ? {
-            height: ['8px', `${16 + Math.sin(i * 0.8) * 20}px`, '8px'],
-          } : { height: '4px' }}
-          transition={{
-            duration: 0.6 + Math.random() * 0.4,
-            repeat: active ? Infinity : 0,
-            delay: i * 0.04,
-            ease: 'easeInOut',
-          }}
-        />
-      ))}
-    </div>
-  )
-}
+export default function DashboardPreview() {
+  const stats = [
+    { label: 'Memories Stored', value: '1,284', trend: '+12.8%', color: 'text-green-500' },
+    { label: 'Active Sessions', value: '55', trend: '-4.8%', color: 'text-red-400' },
+    { label: 'Accuracy', value: '98%', trend: '+10.4%', color: 'text-green-500' },
+    { label: 'Latency', value: '1.2s', trend: '-1.2%', color: 'text-gray-400' },
+  ]
 
-export default function DashboardPreview({ onProcessAudio, onProcessText, loading }) {
-  const [mode, setMode] = useState('record')
-  const [isRecording, setIsRecording] = useState(false)
-  const [recordingTime, setRecordingTime] = useState(0)
-  const [uploadedFile, setUploadedFile] = useState(null)
-  const [textInput, setTextInput] = useState('')
-  const mediaRecorderRef = useRef(null)
-  const chunksRef = useRef([])
-  const timerRef = useRef(null)
-  const fileInputRef = useRef(null)
-
-  const startRecording = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const mediaRecorder = new MediaRecorder(stream)
-      mediaRecorderRef.current = mediaRecorder
-      chunksRef.current = []
-      mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data) }
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/wav' })
-        stream.getTracks().forEach(t => t.stop())
-        onProcessAudio(blob, 'recording.wav')
-      }
-      mediaRecorder.start()
-      setIsRecording(true)
-      setRecordingTime(0)
-      timerRef.current = setInterval(() => setRecordingTime(p => p + 1), 1000)
-    } catch (err) { 
-      console.error('Microphone access denied:', err) 
-    }
-  }, [onProcessAudio])
-
-  const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop()
-      setIsRecording(false)
-      clearInterval(timerRef.current)
-    }
-  }, [isRecording])
-
-  const fmt = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
-
-  const tabs = [
-    { id: 'record', icon: Mic, label: 'Record' },
-    { id: 'upload', icon: Upload, label: 'Upload' },
-    { id: 'text', icon: Send, label: 'Text' },
+  const menuItems = [
+    { icon: Home, label: 'Home', active: true },
+    { icon: Users, label: 'Clients' },
+    { icon: Briefcase, label: 'Projects' },
+    { icon: Clock, label: 'Time tracking' },
+    { icon: Settings, label: 'Tools' },
   ]
 
   return (
-    <section id="input" className="py-28 px-6">
-      <div className="max-w-3xl mx-auto">
-        <motion.div
-          className="text-center mb-10"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-        >
-          <p className="text-xs font-semibold text-indigo-500 uppercase tracking-widest mb-3">// Input</p>
-          <h2 className="text-4xl font-bold text-gray-900">Voice Input</h2>
-        </motion.div>
-
-        <motion.div
-          className="bg-white rounded-3xl shadow-lg p-10"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-        >
-          <div className="flex justify-center gap-3 mb-8">
-            <div className="flex gap-2 p-1 rounded-2xl bg-gray-100">
-              {tabs.map(({ id, icon: Icon, label }) => (
-                <motion.button
-                  key={id}
-                  onClick={() => setMode(id)}
-                  className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold z-10 ${mode === id ? 'text-white' : 'text-gray-600'}`}
-                  whileTap={{ scale: 0.97 }}
+    <div className="max-w-6xl mx-auto relative px-6 w-full">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="bg-white/60 backdrop-blur-3xl rounded-[2.5rem] shadow-2xl shadow-indigo-100/20 border border-white/80 overflow-hidden flex min-h-[600px]"
+      >
+          {/* SIDEBAR */}
+          <div className="w-56 border-r border-gray-50 p-6 flex flex-col gap-8">
+            <div className="flex items-center gap-2 px-2">
+              <div className="w-8 h-8 flex items-center justify-center rounded-full overflow-hidden bg-white/20 shadow-sm border border-gray-100">
+                <img src="/media/logo.png" alt="" className="w-full h-full object-contain" />
+              </div>
+              <span className="font-bold text-gray-900">Mem0AI</span>
+            </div>
+            
+            <nav className="flex flex-col gap-1">
+              {menuItems.map((item) => (
+                <div 
+                  key={item.label}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer ${item.active ? 'bg-slate-50 text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
                 >
-                  {mode === id && (
-                    <motion.div
-                      layoutId="tab-bg"
-                      className="absolute inset-0 rounded-xl bg-indigo-600"
-                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    />
-                  )}
-                  <Icon className="w-4 h-4 relative z-10" />
-                  <span className="relative z-10">{label}</span>
-                </motion.button>
+                  <item.icon size={18} />
+                  {item.label}
+                </div>
               ))}
+            </nav>
+
+            <div className="mt-auto">
+                <div className="bg-indigo-50 rounded-2xl p-4 flex flex-col gap-3">
+                    <p className="text-xs font-bold text-indigo-600 tracking-tight">UPGRADE PRO</p>
+                    <p className="text-[10px] text-indigo-400 leading-relaxed">Get unlimited memory slots and custom agents.</p>
+                </div>
             </div>
           </div>
 
-          <AnimatePresence mode="wait">
-            {mode === 'record' && (
-              <motion.div
-                key="record"
-                initial={{ opacity: 0, x: -24 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 24 }}
-                transition={{ duration: 0.3 }}
-                className="flex flex-col items-center gap-6"
-              >
-                <Waveform active={isRecording} />
+          {/* MAIN CONTENT */}
+          <div className="flex-1 flex flex-col">
+            {/* HEADER */}
+            <div className="p-8 pb-0 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900">Mem0AI Memory Console</h3>
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" size={14} />
+                  <input readOnly placeholder="Search anything..." className="bg-slate-50 border-none rounded-full py-2 pl-9 pr-4 text-xs w-48 focus:outline-none" />
+                </div>
+                <div className="flex items-center gap-2 bg-slate-50 rounded-full px-3 py-1.5 border border-gray-100">
+                  <span className="text-[10px] font-bold text-gray-500">0:00:00</span>
+                  <Play size={10} className="text-gray-400 fill-gray-400" />
+                </div>
+              </div>
+            </div>
 
-                <motion.button
-                  onClick={isRecording ? stopRecording : startRecording}
-                  disabled={loading}
-                  className="w-24 h-24 rounded-full flex items-center justify-center bg-indigo-100"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.93 }}
-                >
-                  {isRecording && [1, 2, 3].map((ring) => (
-                    <motion.div
-                      key={ring}
-                      className="absolute inset-0 rounded-full border-2 border-red-400"
-                      animate={{ scale: [1, 1.5 + ring * 0.3], opacity: [0.6, 0] }}
-                      transition={{ duration: 1.5, delay: ring * 0.3, repeat: Infinity, ease: 'easeOut' }}
-                    />
-                  ))}
-                  <div className="w-full h-full rounded-full flex items-center justify-center bg-indigo-100">
-                    {isRecording ? (
-                      <MicOff className="w-10 h-10 text-red-500" />
-                    ) : (
-                      <Mic className="w-10 h-10 text-indigo-600" />
-                    )}
+            {/* STATS GRID */}
+            <div className="p-8 grid grid-cols-4 gap-6">
+              {stats.map((stat) => (
+                <div key={stat.label} className="bg-white border border-gray-50 rounded-2xl p-5 shadow-sm">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{stat.label}</p>
+                  <div className="flex items-end justify-between">
+                    <p className="text-2xl font-bold text-gray-900 tracking-tight">{stat.value}</p>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${stat.color} bg-opacity-10`}>{stat.trend}</span>
                   </div>
-                </motion.button>
+                </div>
+              ))}
+            </div>
 
-                <AnimatePresence mode="wait">
-                  {isRecording ? (
-                    <motion.div key="rec" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="text-center">
-                      <p className="text-red-500 font-bold text-2xl tabular-nums">{fmt(recordingTime)}</p>
-                      <p className="text-gray-500 text-sm mt-1">Recording… click to stop</p>
+            {/* CHART AREA */}
+            <div className="flex-1 px-8 pb-8 flex flex-col gap-6">
+              <div className="bg-white border border-gray-50 rounded-2xl p-6 flex flex-col flex-1 shadow-sm">
+                <div className="flex items-center justify-between mb-8">
+                  <p className="text-sm font-bold text-gray-900">Earnings over time</p>
+                  <div className="flex gap-2">
+                    <div className="w-8 h-1.5 bg-indigo-500 rounded-full" />
+                    <div className="w-2 h-1.5 bg-slate-100 rounded-full" />
+                  </div>
+                </div>
+                
+                {/* SIMULATED CHART */}
+                <div className="flex-1 flex items-end gap-3 px-2">
+                  {[40, 70, 45, 90, 65, 80, 55, 95, 75, 40, 60].map((h, i) => (
+                    <motion.div 
+                      key={i}
+                      initial={{ height: 0 }}
+                      whileInView={{ height: `${h}%` }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.05, duration: 1 }}
+                      className="flex-1 bg-indigo-100 rounded-t-lg relative group"
+                    >
+                      <div className="absolute inset-0 bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity rounded-t-lg" />
                     </motion.div>
-                  ) : loading ? (
-                    <motion.div key="load" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="flex items-center gap-2">
-                      <Loader2 className="w-5 h-5 text-indigo-600 animate-spin" />
-                      <p className="text-indigo-600 font-medium">Processing…</p>
-                    </motion.div>
-                  ) : (
-                    <motion.p key="idle" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="text-gray-500 text-sm">
-                      Click the microphone to start recording
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            )}
+                  ))}
+                </div>
+              </div>
 
-            {mode === 'upload' && (
-              <motion.div
-                key="upload"
-                initial={{ opacity: 0, x: -24 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 24 }}
-                transition={{ duration: 0.3 }}
-                className="flex flex-col items-center gap-6"
-              >
-                <input 
-                  ref={fileInputRef} 
-                  type="file" 
-                  accept="audio/*" 
-                  className="hidden"
-                  onChange={(e) => setUploadedFile(e.target.files?.[0])} 
-                />
-                <motion.div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full border-2 border-dashed border-gray-200 rounded-2xl p-10 flex flex-col items-center gap-4 cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/50 transition-all"
-                >
-                  <AnimatePresence mode="wait">
-                    {uploadedFile ? (
-                      <motion.div key="file" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex flex-col items-center gap-3">
-                        <FileAudio className="w-12 h-12 text-indigo-600" />
-                        <p className="text-gray-700 font-semibold">{uploadedFile.name}</p>
-                        <p className="text-gray-400 text-xs">{(uploadedFile.size / 1024).toFixed(1)} KB</p>
-                      </motion.div>
-                    ) : (
-                      <motion.div key="empty" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex flex-col items-center gap-3">
-                        <Upload className="w-12 h-12 text-gray-300" />
-                        <p className="text-gray-500 font-medium">Drop audio file or click to browse</p>
-                        <p className="text-gray-400 text-xs">.wav, .mp3, .m4a supported</p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-
-                {uploadedFile && (
-                  <motion.button
-                    onClick={() => onProcessAudio(uploadedFile, uploadedFile.name)}
-                    disabled={loading}
-                    className="flex items-center gap-2 bg-indigo-600 text-white font-semibold px-8 py-3 rounded-full"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    <Zap className="w-4 h-4" /> Run Pipeline
-                  </motion.button>
-                )}
-              </motion.div>
-            )}
-
-            {mode === 'text' && (
-              <motion.div
-                key="text"
-                initial={{ opacity: 0, x: -24 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 24 }}
-                transition={{ duration: 0.3 }}
-                className="flex flex-col items-center gap-5"
-              >
-                <motion.textarea
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  placeholder='e.g. "Create a Python file with a retry decorator"'
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-700 resize-none text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all"
-                  rows={4}
-                />
-                <motion.button
-                  onClick={() => onProcessText(textInput)}
-                  disabled={loading || !textInput.trim()}
-                  className="flex items-center gap-2 bg-indigo-600 text-white font-semibold px-8 py-3 rounded-full disabled:opacity-40 disabled:cursor-not-allowed"
-                  whileHover={textInput.trim() ? { scale: 1.04 } : {}}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  <Zap className="w-4 h-4" /> Run Pipeline
-                </motion.button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              {/* BOTTOM ACTIONS */}
+              <div className="grid grid-cols-2 gap-6">
+                <div className="bg-white border border-gray-50 rounded-2xl p-4 flex items-center gap-4 shadow-sm group cursor-pointer hover:border-indigo-100 transition-colors">
+                  <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                    <Send size={18} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">Send an invoice</p>
+                    <p className="text-[10px] text-gray-400">Quick bill your clients</p>
+                  </div>
+                </div>
+                <div className="bg-white border border-gray-50 rounded-2xl p-4 flex items-center gap-4 shadow-sm group cursor-pointer hover:border-indigo-100 transition-colors">
+                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                    <Plus size={18} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">Draft a proposal</p>
+                    <p className="text-[10px] text-gray-400">Win new engineering deals</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
       </div>
-    </section>
+  )
+}
+
+function Send({ size }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" />
+    </svg>
   )
 }

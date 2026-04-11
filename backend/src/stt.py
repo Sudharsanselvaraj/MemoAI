@@ -29,6 +29,7 @@ try:
 except ImportError:
     OPENAI_AVAILABLE = False
 
+from metrics_store import metrics
 
 def transcribe_audio(audio_path: str, provider: str = "groq") -> dict:
     """
@@ -46,20 +47,29 @@ def transcribe_audio(audio_path: str, provider: str = "groq") -> dict:
     if not os.path.exists(audio_path):
         raise FileNotFoundError(f"Audio file not found: {audio_path}")
     
-    if provider == "groq":
-        return _transcribe_groq(audio_path)
-    elif provider == "openai":
-        return _transcribe_openai(audio_path)
-    elif provider == "local":
-        return _transcribe_local(audio_path)
-    else:
-        # Auto-select based on available keys
-        if os.getenv("GROQ_API_KEY") and GROQ_AVAILABLE:
-            return _transcribe_groq(audio_path)
-        elif os.getenv("OPENAI_API_KEY") and OPENAI_AVAILABLE:
-            return _transcribe_openai(audio_path)
+    try:
+        metrics["pipeline"]["transcription"] = "running"
+        if provider == "groq":
+            res = _transcribe_groq(audio_path)
+        elif provider == "openai":
+            res = _transcribe_openai(audio_path)
+        elif provider == "local":
+            res = _transcribe_local(audio_path)
         else:
-            return _transcribe_local(audio_path)
+            # Auto-select based on available keys
+            if os.getenv("GROQ_API_KEY") and GROQ_AVAILABLE:
+                res = _transcribe_groq(audio_path)
+            elif os.getenv("OPENAI_API_KEY") and OPENAI_AVAILABLE:
+                res = _transcribe_openai(audio_path)
+            else:
+                res = _transcribe_local(audio_path)
+        
+        metrics["pipeline"]["transcription"] = "completed"
+        metrics["transcription"] = res["text"]
+        return res
+    except Exception as e:
+        metrics["pipeline"]["transcription"] = "error"
+        raise e
 
 
 def _transcribe_groq(audio_path: str) -> dict:

@@ -1,82 +1,89 @@
+import { motion } from 'framer-motion'
+import { Mic, Zap, Database, Terminal, RefreshCcw } from 'lucide-react'
+
 export default function FeatureSection() {
-  const features = [
-    {
-      icon: "🎤",
-      title: "Voice Input",
-      desc: "Record or upload audio files",
+  const steps = [
+    { 
+      icon: Mic, 
+      step: 'STEP 01', 
+      title: 'Voice Input', 
+      desc: 'Speech-to-text via Whisper',
+      color: 'text-indigo-500',
+      bg: 'bg-indigo-50'
     },
-    {
-      icon: "🧠",
-      title: "Intent Detection",
-      desc: "AI classifies your commands",
+    { 
+      icon: Zap, 
+      step: 'STEP 02', 
+      title: 'Intent Detection', 
+      desc: 'Memory-aware reasoning',
+      color: 'text-amber-500',
+      bg: 'bg-amber-50'
     },
-    {
-      icon: "⚡",
-      title: "Auto Execute",
-      desc: "Actions run automatically",
+    { 
+      icon: Database, 
+      step: 'STEP 03', 
+      title: 'Memory Retrieval', 
+      desc: 'Persistent context loading',
+      color: 'text-blue-500',
+      bg: 'bg-blue-50'
     },
-  ];
+    { 
+      icon: Terminal, 
+      step: 'STEP 04', 
+      title: 'Tool Execution', 
+      desc: 'Autonomous tool decisions',
+      color: 'text-slate-600',
+      bg: 'bg-slate-100'
+    },
+    { 
+      icon: RefreshCcw, 
+      step: 'STEP 05', 
+      title: 'Response Feedback', 
+      desc: 'Persistent learning loop',
+      color: 'text-emerald-500',
+      bg: 'bg-emerald-50'
+    },
+  ]
 
   return (
-    <section
-      id="features"
-      className="
-        py-28
-        bg-gray-50
-      "
-    >
-      <div
-        className="
-          max-w-7xl
-          mx-auto
-          px-6
-          text-center
-        "
-      >
-        <h2 className="text-4xl font-bold">
-          Features
-        </h2>
+    <section id="pipeline" className="py-32 px-6 bg-white">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-24">
+          <p className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-4">PIPELINE</p>
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 tracking-tight">
+            From voice to memory to action.
+          </h2>
+          <p className="text-gray-500 mt-6 text-lg max-w-2xl mx-auto font-medium">
+            Mem0AI processes every command through a memory-first pipeline.
+          </p>
+        </div>
 
-        <p className="text-gray-600 mt-4">
-          A complete voice-controlled AI agent running locally
-        </p>
+        <div className="relative">
+          {/* CONNECTING LINE */}
+          <div className="absolute top-[48px] left-[10%] right-[10%] h-[1px] bg-gray-100 hidden md:block" />
 
-        <div
-          className="
-            grid
-            md:grid-cols-3
-            gap-10
-            mt-16
-          "
-        >
-          {features.map((f, i) => (
-            <div
-              key={i}
-              className="
-                bg-white
-                p-8
-                rounded-3xl
-                shadow-lg
-                hover:-translate-y-2
-                hover:shadow-xl
-                transition
-              "
-            >
-              <div className="text-4xl">
-                {f.icon}
-              </div>
-
-              <h3 className="text-xl font-semibold mt-4">
-                {f.title}
-              </h3>
-
-              <p className="text-gray-600 mt-2">
-                {f.desc}
-              </p>
-            </div>
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-12 relative z-10">
+            {steps.map((s, i) => (
+              <motion.div
+                key={s.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="flex flex-col items-center text-center"
+              >
+                <div className={`w-24 h-24 ${s.bg} rounded-full flex items-center justify-center mb-8 relative border-8 border-white shadow-sm transition-transform hover:scale-110 duration-300`}>
+                  <s.icon className={`w-8 h-8 ${s.color}`} />
+                </div>
+                
+                <p className="text-[10px] font-bold text-gray-300 tracking-widest mb-3">{s.step}</p>
+                <h4 className="text-sm font-bold text-gray-900 mb-2">{s.title}</h4>
+                <p className="text-xs text-gray-400 leading-relaxed max-w-[140px]">{s.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
-  );
+  )
 }
