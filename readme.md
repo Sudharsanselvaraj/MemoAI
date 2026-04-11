@@ -1,4 +1,4 @@
-# MemoAI — Memory-Powered Local AI Agent
+[# MemoAI — Memory-Powered Local AI Agent
 
 > **Speak a command → AI understands your intent → Files get created, code gets written, text gets summarized. Entirely on your machine.**
 
@@ -484,3 +484,4 @@ MIT License — see `LICENSE` for details.
 Pre-final year BTech CSE @ SRMIST Trichy  
 ML Engineer Intern @ ALKF  
 [LinkedIn](https://linkedin.com/in/sudharsan-s-528a8a2a0) · [GitHub](https://github.com/Sudharsanselvaraj)
+](https://youtu.be/xt7Ha3HTBlM)
