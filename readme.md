@@ -12,7 +12,7 @@ MemoAI is a fully local-first, voice-controlled AI agent built for the GenoTek V
 |----------|------|
 | 🎬 Video Demo | [YouTube Unlisted](https://youtu.be/xt7Ha3HTBlM) |
 | 📰 Technical Article | [Medium / Dev.to](https://medium.com/@sudharsan97511/building-memoai-a-memory-powered-local-ai-agent-that-listens-thinks-and-acts-c8ac59c360c2) |
-| 💻 GitHub Repository | [github.com/Sudharsanselvaraj/MemoAI](YOUR_GITHUB_LINK) |
+| 💻 GitHub Repository | [github.com/Sudharsanselvaraj/MemoAI](https://github.com/Sudharsanselvaraj/MemoAI-Voice-Enabled-Execution-Framework) |
 
 ---
 
