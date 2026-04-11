@@ -1,4 +1,4 @@
-# ⬡ MemoAI — Memory-Powered Local AI Agent
+# MemoAI — Memory-Powered Local AI Agent
 
 > **Speak a command → AI understands your intent → Files get created, code gets written, text gets summarized. Entirely on your machine.**
 
@@ -16,44 +16,7 @@ MemoAI is a fully local-first, voice-controlled AI agent built for the GenoTek V
 
 ---
 
-## 🖼️ Screenshots
-
-### Landing Page — Hero Section
-> *The entry point. Clean, modern, explains the product in three words: Remember. Understand. Execute.*
-
-![Hero Section](./screenshots/hero.png)
-
----
-
-### Capabilities — Memory Logs Panel
-> *Left: live memory log console showing pipeline actions in real-time. Right: product capability summary.*
-
-![Capabilities Section](./screenshots/capabilities.png)
-
----
-
-### Pipeline — Five-Stage Architecture
-> *Visual breakdown of all five processing stages with icons and labels.*
-
-![Pipeline Section](./screenshots/pipeline.png)
-
----
-
-### Agent Console — Input & Pipeline Timeline
-> *The main interaction page. Voice/Upload/Text tabs on the left. Pipeline Timeline with live status indicators on the right.*
-
-![Agent Console](./screenshots/agent_console.png)
-
----
-
-### Agent Console — Full Output View
-> *Shows transcription, detected intent, action executed, generated response, and real-time metrics (tokens, latency, memory stats).*
-
-![Agent Output](./screenshots/agent_output.png)
-
----
-
-## 🏗️ System Architecture
+## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -128,7 +91,7 @@ MemoAI is a fully local-first, voice-controlled AI agent built for the GenoTek V
 
 ---
 
-## 🧩 Models Used
+## Models Used
 
 | Layer | Model | Provider | Latency | Why |
 |-------|-------|----------|---------|-----|
@@ -140,7 +103,7 @@ MemoAI is a fully local-first, voice-controlled AI agent built for the GenoTek V
 
 ---
 
-## ⚡ Why Groq over Local Whisper?
+## Why Groq over Local Whisper?
 
 **Hardware Justification (documented per assignment requirement):**
 
@@ -159,7 +122,7 @@ Running `openai/whisper-large-v3` locally requires:
 
 ---
 
-## 🎯 Supported Intents
+## Supported Intents
 
 | Intent | Trigger Keywords | Action |
 |--------|-----------------|--------|
@@ -191,7 +154,7 @@ Running `openai/whisper-large-v3` locally requires:
 
 ---
 
-## 🎁 Bonus Features Implemented
+## Bonus Features Implemented
 
 | Feature | Status | Implementation |
 |---------|--------|----------------|
@@ -211,7 +174,7 @@ MemoAI/
 ├── backend/
 │   ├── server.py               # FastAPI app — all API routes
 │   ├── requirements.txt        # Python dependencies
-│   ├── output/                 # ⚠️  ALL generated files land here (sandboxed)
+│   ├── output/                 # ALL generated files land here (sandboxed)
 │   └── src/
 │       ├── agent.py            # Intent classifier + tool executor + run_agent()
 │       ├── stt.py              # STT module — Groq / OpenAI / Local Whisper
@@ -441,7 +404,7 @@ http://localhost:5173/agent       ← Agent Console (main interaction)
 
 ---
 
-## 🔒 Safety & Security
+## Safety & Security
 
 - **Filesystem sandbox**: All file creation and code writing is restricted to the `backend/output/` directory. The `safe_filename()` function in `agent.py` strips path traversal attempts (`../`) and sanitizes filenames with regex before any write operation.
 - **Human-in-the-loop gate**: Any intent involving file operations (`create_file`, `write_code`) triggers a confirmation prompt in the UI. The backend holds the pending action in `_pending_approvals{}` until the user explicitly approves via `POST /api/approve`.
@@ -449,7 +412,7 @@ http://localhost:5173/agent       ← Agent Console (main interaction)
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 **Ollama not running:**
 ```bash
@@ -480,7 +443,7 @@ The backend allows `*` origins by default. Ensure the backend is on port `8000` 
 
 ---
 
-## 📊 Performance Notes
+## Performance Notes
 
 | Operation | Typical Latency |
 |-----------|----------------|
@@ -495,7 +458,7 @@ Metrics are exposed live at `GET /metrics` and displayed in the Agent Console's 
 
 ---
 
-## 🧠 How Session Memory Works
+## How Session Memory Works
 
 The backend maintains an in-memory dict `_sessions{}` keyed by `session_id`. Each request appends the user's command and the assistant's response as `{role, content}` pairs. The last 6 entries (3 conversational turns) are passed as a `session_context` string to every Llama 3 call, giving the model awareness of prior conversation.
 
@@ -509,13 +472,13 @@ Sessions cap at 20 messages to prevent unbounded memory growth. The frontend gen
 
 ---
 
-## 📄 License
+## License
 
 MIT License — see `LICENSE` for details.
 
 ---
 
-## 👤 Author
+## Author
 
 **Sudharsan S**  
 Pre-final year BTech CSE @ SRMIST Trichy  
