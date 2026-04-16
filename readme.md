@@ -5,7 +5,6 @@
 MemoAI is a fully local-first, voice-controlled AI agent built for the GenoTek Voice AI Agent assignment. It accepts audio via microphone or file upload, transcribes it using Groq's Whisper API, classifies the user's intent with a keyword-based classifier backed by Ollama's Llama 3, executes the appropriate tool, and streams the full pipeline output to a polished React UI — all with session memory, human-in-the-loop approval, and real-time telemetry.
 
 ---
-
 ## Links
 
 | Resource | Link |
